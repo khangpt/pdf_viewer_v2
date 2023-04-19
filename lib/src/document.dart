@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:advance_pdf_viewer/src/page.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pdf_viewer_v2/src/page.dart';
 
 class PDFDocument {
-  static const MethodChannel _channel =
-      MethodChannel('flutter_plugin_pdf_viewer');
+  static const MethodChannel _channel = MethodChannel('flutter_plugin_pdf_viewer');
 
   String? _filePath;
   late int count;
@@ -23,8 +22,7 @@ class PDFDocument {
     final document = PDFDocument();
     document._filePath = file.path;
     try {
-      final pageCount = await _channel
-          .invokeMethod('getNumberOfPages', {'filePath': file.path});
+      final pageCount = await _channel.invokeMethod('getNumberOfPages', {'filePath': file.path});
       document.count = document.count = int.parse(pageCount as String);
     } catch (e) {
       throw Exception('Error reading PDF!');
@@ -41,13 +39,11 @@ class PDFDocument {
   static Future<PDFDocument> fromURL(String url,
       {Map<String, String>? headers, CacheManager? cacheManager}) async {
     // Download into cache
-    final f = await (cacheManager ?? DefaultCacheManager())
-        .getSingleFile(url, headers: headers);
+    final f = await (cacheManager ?? DefaultCacheManager()).getSingleFile(url, headers: headers);
     final document = PDFDocument();
     document._filePath = f.path;
     try {
-      final pageCount =
-          await _channel.invokeMethod('getNumberOfPages', {'filePath': f.path});
+      final pageCount = await _channel.invokeMethod('getNumberOfPages', {'filePath': f.path});
       document.count = document.count = int.parse(pageCount as String);
     } catch (e) {
       throw Exception('Error reading PDF!');
@@ -72,8 +68,7 @@ class PDFDocument {
     final document = PDFDocument();
     document._filePath = file.path;
     try {
-      final pageCount = await _channel
-          .invokeMethod('getNumberOfPages', {'filePath': file.path});
+      final pageCount = await _channel.invokeMethod('getNumberOfPages', {'filePath': file.path});
       document.count = document.count = int.parse(pageCount as String);
     } catch (e) {
       throw Exception('Error reading PDF!');
@@ -94,8 +89,8 @@ class PDFDocument {
   }) async {
     assert(page > 0);
     if (_preloaded && _pages.isNotEmpty) return _pages[page - 1];
-    final data = await _channel
-        .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': page});
+    final data =
+        await _channel.invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': page});
     return PDFPage(
       data as String?,
       page,
@@ -116,8 +111,8 @@ class PDFDocument {
   }) async {
     int countvar = 1;
     for (final _ in List.filled(count, null)) {
-      final data = await _channel.invokeMethod(
-          'getPage', {'filePath': _filePath, 'pageNumber': countvar});
+      final data =
+          await _channel.invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': countvar});
       _pages.add(PDFPage(
         data as String?,
         countvar,
@@ -135,8 +130,7 @@ class PDFDocument {
   // Stream all pages
   Stream<PDFPage?> getAll({final Function(double)? onZoomChanged}) {
     return Future.forEach<PDFPage?>(List.filled(count, null), (i) async {
-      final data = await _channel
-          .invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': i});
+      final data = await _channel.invokeMethod('getPage', {'filePath': _filePath, 'pageNumber': i});
       return PDFPage(
         data as String?,
         1,
@@ -148,9 +142,7 @@ class PDFDocument {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PDFDocument &&
-          runtimeType == other.runtimeType &&
-          _filePath == other._filePath;
+      other is PDFDocument && runtimeType == other.runtimeType && _filePath == other._filePath;
 
   @override
   int get hashCode => Object.hash(_filePath, count);
